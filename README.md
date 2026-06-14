@@ -281,3 +281,9 @@ WHERE booking_status = 'Not Canceled';
   * Active Bookings: Min: 0 days | **Average: 58.9 days** | Max: 386 days
 * **Business Takeaway:** While both subsets contain short-term and long-term files, the average lead-time for storniert reservations is significantly longer (139 days vs. 59 days). Booking horizons that span long periods represent high revenue volatility and pipeline risk. This statistical data indicator justifies the implementation of adaptive corporate deposit frameworks or strict upfront cancellation fees for bookings created months in advance.
 
+---
+
+## 13. Data Licensing / Lizenzierung
+This case study utilizes open-source hospitality operational records distributed transparently under the public **Creative Commons Attribution 4.0 International License (CC BY 4.0)**. 
+
+Diese Fallstudie verwendet open-source Hotel-Performance-Daten, welche unter den rechtlichen Bedingungen der **Creative Commons Namensnennung 4.0 International Lizenz (CC BY 4.0)** bereitgestellt werden.
