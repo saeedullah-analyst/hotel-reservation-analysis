@@ -159,3 +159,125 @@ WHERE arrival_date = '2022-02-12'
 
 *   **Execution Output:** 148.0 persons.
 *   **Business Takeaway:** By adding adult and child integers directly inside the `SUM()` clause, this script calculates the absolute human headcount (148 guests) moving through the building. This metric serves as a reliable core baseline value for facilities planning, catering provisioning, and risk-management compliance tracking.
+*   ### Aufgabe 12: Facility Resource Allocation (Parking Infrastructure)
+**Business Question:** Wie viele Parkplätze benötigen die Gäste, die am 12. Februar 2022 anreisen? (Quantify the total number of parking spaces requested by active guests arriving on February 12, 2022.)
+
+```sql
+SELECT 
+    SUM(required_car_parking_space) AS car_parking
+FROM reservation
+WHERE arrival_date = '2022-02-12' 
+  AND booking_status = 'Not Canceled';
+```
+
+* **Execution Output:** 2.0 spaces requested.
+* **Business Takeaway:** Isolating parking demands for specific dates allows facility operations to manage lot capacities in advance. Since only two parking spaces are required for arrivals on February 12, 2022, logistics managers can confidently allocate the remaining parking inventory to walk-ins or special events without risking a resource bottleneck.
+### Aufgabe 13: Time-Delta Asset Reservation Logistics
+**Business Question:** Wie lange benötigen sie die Parkplätze jeweils? Schreibe eine Query, die die Gesamtanzahl an Nächten (no_of_week_nights und no_of_weekend_nights) für diese beiden Reservierungen ausgibt, und nenne das Ergebnis no_of_nights. (Calculate the exact length of stay in total nights for the specific customers requesting parking on February 12, 2022.)
+
+```sql
+SELECT 
+    no_of_week_nights + no_of_weekend_nights AS no_of_nights
+FROM reservation
+WHERE arrival_date = '2022-02-12'
+  AND booking_status = 'Not Canceled'
+  AND required_car_parking_space = 1;
+```
+
+* **Execution Output:** 
+  * 3
+  * 3
+* **Business Takeaway:** Both active reservations requiring vehicle storage stay for exactly 3 nights. This metrics-driven calculation allows front-desk supervisors to block parking space availability for those precise slots, avoiding scheduling conflicts and optimizing yard management.
+### Aufgabe 14: Cross-Entity Attribute Identification (Meal Plan Lookups)
+**Business Question:** Welche Mahlzeiten sind für die Reservierungen am 12. Februar 2022 gebucht, bei denen Kinder anreisen? Schreibe zunächst eine Query, die in der Tabelle reservation die meal_plan_id ausgibt. (Identify the specific meal plan identifiers tied to active family reservations arriving on February 12, 2022.)
+
+```sql
+SELECT 
+    meal_plan_id
+FROM reservation
+WHERE arrival_date = '2022-02-12'
+  AND booking_status = 'Not Canceled'
+  AND no_of_children > 0;
+```
+
+* **Execution Output:** 8 rows returned, all showing `meal_plan_id = 1`.
+* **Business Takeaway:** The query reveals a uniform consumer pattern: every family with children arriving on this target date has booked the exact same food service package (`meal_plan_id = 1`). Isolating this shared key allows the catering department to look up the exact menu details and prepare inventory efficiently for this customer group.
+### Aufgabe 15: Dimensional Menu Feature Extraction
+**Business Question:** Welche Mahlzeiten haben die Personen gebucht? Lass dir alle Spalten der Tabelle meal_plan mit der id = 1 ausgeben. (Resolve the actual service definitions for meal plan ID 1 by extracting all attributes from the master dimensional meal table.)
+
+```sql
+SELECT *
+FROM meal_plan 
+WHERE id = 1;
+```
+
+* **Execution Output:** 
+  * `id`: 1 | `breakfast`: Yes | `lunch`: no | `dinner`: Yes
+* **Business Takeaway:** Resolving the metadata confirms that Meal Plan 1 corresponds to a standard half-board service framework (Halbpension), covering breakfast and dinner while explicitly skipping lunch. By combining this dimension lookup with the transactional check from Aufgabe 14, kitchen and restaurant staff can immediately allocate inventory resources for morning and evening shifts on February 12, 2022, without expecting midday traffic from these families.
+### Aufgabe 16: Cross-Entity Capacity Identification (Room Type Lookups)
+**Business Question:** Welche Zimmertypen sind für die Reservierungen am 12. Februar 2022 gebucht, bei denen Kinder anreisen? Schreibe zunächst wieder eine Query, die in der Tabelle reservation die room_type_id abfragt. (Identify the specific room type identifiers tied to active family reservations arriving on February 12, 2022.)
+
+```sql
+SELECT 
+    room_type_id
+FROM reservation
+WHERE arrival_date = '2022-02-12'
+  AND booking_status = 'Not Canceled'
+  AND no_of_children > 0;
+```
+
+* **Execution Output:** 8 rows returned, showing a mix of `room_type_id = 1` and `room_type_id = 2`.
+* **Business Takeaway:** The query flags a diversified inventory demand among incoming family accounts on this specific date. Families are clustered exclusively around Room Types 1 and 2, which provides front-desk coordinators with the exact structural indices required to check master room configurations next.
+### Aufgabe 17: Dimensional Room Feature Extraction (Array Set Logic)
+**Business Question:** Schreibe eine Query für die Tabelle `room_type`. Frage alle Spalten ab und setze für die Zeilen die Bedingung, dass die id eine 1 oder eine 2 sein soll. (Resolve the physical bedding and layout properties for room type identifiers 1 and 2 using set logic to extract dimensional attributes.)
+
+```sql
+SELECT *
+FROM room_type 
+WHERE id IN (1, 2);
+```
+
+* **Execution Output:** 
+  * `id`: 1 | `bed_type`: queen  | `layout`: standard | `studio`: no
+  * `id`: 2 | `bed_type`: double | `layout`: standard | `studio`: no
+* **Business Takeaway:** Resolving this layout mapping reveals that both target room types share a uniform standard footprint without studio expansions. The explicit commercial difference lies in bedding dimensions, where Type 1 implements queen-size configurations and Type 2 deploys traditional double beds. Automating this structural translation directly empowers front-desk check-in teams to streamline specific room allocations for incoming families.
+### Aufgabe 18: Baseline Macro Attrition Volume Audit
+**Business Question:** Wie viele stornierte Reservierungen beinhaltet die Datenbank? (Quantify the total absolute volume of lost cancellations stored within historical hotel ledger records to establish a performance benchmark.)
+
+```sql
+SELECT 
+    COUNT(*) AS total_cancellations 
+FROM reservation 
+WHERE booking_status = 'Canceled';
+```
+
+* **Execution Output:** 11,885 total cancellations.
+* **Business Takeaway:** Finding 11,885 canceled records out of the master ledger establishes a clear baseline metric for macro attrition tracking. This high volume of lost transactions provides a massive statistical foundation for running deep business diagnostics to analyze whether scheduling horizons (short-term vs. long-term booking lead times) significantly drive this churn behavior.
+### Aufgabe 19: Operational Timeline Volatility Diagnostics (Lead-Time Exposure Analysis)
+**Business Question:** Wie hoch ist die minimale, durchschnittliche und maximale Vorlaufzeit für Reservierungen? Schreibe diese Query in zwei Varianten: einmal mit der Bedingung für stornierte und einmal mit der Bedingung für nicht stornierte Reservierungen. (Measure the minimum, average, and maximum lead-time windows separating booking creation from arrival dates across canceled versus active reservation subsets.)
+
+**Query 19.1 (Canceled Bookings Audit):**
+```sql
+SELECT 
+    MIN(lead_time) AS min_lead_time, 
+    AVG(lead_time) AS avg_lead_time,
+    MAX(lead_time) AS max_lead_time
+FROM reservation
+WHERE booking_status = 'Canceled';
+```
+
+**Query 19.2 (Active Bookings Audit):**
+```sql
+SELECT 
+    MIN(lead_time) AS min_lead_time, 
+    AVG(lead_time) AS avg_lead_time,
+    MAX(lead_time) AS max_lead_time
+FROM reservation
+WHERE booking_status = 'Not Canceled';
+```
+
+* **Execution Results Summary:**
+  * Canceled Bookings: Min: 0 days | **Average: 139.2 days** | Max: 443 days
+  * Active Bookings: Min: 0 days | **Average: 58.9 days** | Max: 386 days
+* **Business Takeaway:** While both subsets contain short-term and long-term files, the average lead-time for storniert reservations is significantly longer (139 days vs. 59 days). Booking horizons that span long periods represent high revenue volatility and pipeline risk. This statistical data indicator justifies the implementation of adaptive corporate deposit frameworks or strict upfront cancellation fees for bookings created months in advance.
+
